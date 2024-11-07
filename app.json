@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "SwiftErrands",
+    "slug": "SwiftErrands",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/kiki3.jpg",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/Kikifondo.jpeg",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage":"./assets/Kikifondo.jpeg",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
