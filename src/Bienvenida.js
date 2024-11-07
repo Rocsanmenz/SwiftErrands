@@ -12,7 +12,14 @@ const AcercaDeMandaditos = () => {
             <Text style={styles.description}>
                 Bienvenidos a Mandaditos Kiki, tu servicio de entrega a domicilio confiable y rápido.
                 Nos inspiramos en la dedicación de Kiki para hacer tus mandados con puntualidad y cariño.
+        
+            
             </Text>
+            <Text style={styles.description}>
+                Trabajamos todos los días de <Text style={styles.highlight}>8:00 AM a 8:00 PM</Text>, asegurándonos de que tus productos lleguen 
+                justo a tiempo.
+            </Text>
+    
         </View>
     );
 };

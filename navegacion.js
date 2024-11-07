@@ -5,7 +5,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 
 import FormularioSolicitud from "./src/FormularioSolicitud";
 import ListaSolicitudes from "./src/ListaSolicitudes";
-import DetallesSolicitud from "./src/DetallesSolicitud";
+import GraficoMandados from "./src/Grafico";
 import GaleriaProductos from "./src/galeria";
 import AcercaDeMandaditos from "./src/Bienvenida";
 
@@ -18,7 +18,7 @@ const MyTheme = {
     ...DefaultTheme.colors,
     background: '#ffcccb', // Fondo rosa suave inspirado en el lazo de Kiki
     primary: '#1e3264',    // Azul oscuro para resaltar elementos
-    alignItems: 'center',
+    
   },
 };
 
@@ -58,7 +58,7 @@ function MyTabs() {
         }}
       />
           <Tab.Screen 
-        name="Nuevo mandadito" 
+        name="Nuevo" 
         component={FormularioSolicitud}
         options={{
           tabBarIcon: ({ color, size }) => (
@@ -77,7 +77,7 @@ function MyTabs() {
       />
       <Tab.Screen 
         name="Gráficos" 
-        component={DetallesSolicitud} 
+        component={GraficoMandados} 
         options={{
           tabBarIcon: ({ color, size }) => (
             <AntDesign name="barchart" size={size} color={color} />

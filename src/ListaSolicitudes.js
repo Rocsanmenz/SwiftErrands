@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, Alert, TextInput, Button, Image } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, Alert, TextInput, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { Picker } from '@react-native-picker/picker';
 import { db } from '../firebaseConfig';
 import { collection, getDocs, doc, addDoc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 export default function ListaSolicitudes() {
     const [solicitudes, setSolicitudes] = useState([]);
@@ -10,6 +12,7 @@ export default function ListaSolicitudes() {
     const [nombreProducto, setNombreProducto] = useState('');
     const [cantidad, setCantidad] = useState('');
     const [precioEstimado, setPrecioEstimado] = useState('');
+    const [direccion, setDireccion] = useState('');
     const [imagenProducto, setImagenProducto] = useState(null);
     const [editingId, setEditingId] = useState(null);
 
@@ -22,7 +25,7 @@ export default function ListaSolicitudes() {
         try {
             const querySnapshot = await getDocs(collection(db, "solicitudes"));
             const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            console.log("Datos cargados desde Firestore:", data); // Verifica los datos recibidos
+            console.log("Datos cargados desde Firestore:", data);
             setSolicitudes(data);
         } catch (error) {
             console.error("Error al cargar las solicitudes: ", error);
@@ -31,7 +34,7 @@ export default function ListaSolicitudes() {
     };
 
     const handleGuardar = async () => {
-        if (nombreProducto === '' || cantidad === '' || precioEstimado === '') {
+        if (!nombreProducto || !cantidad || !precioEstimado || !direccion) {
             Alert.alert("Error", "Por favor, complete todos los campos.");
             return;
         }
@@ -40,19 +43,21 @@ export default function ListaSolicitudes() {
             if (editingId) {
                 const solicitudRef = doc(db, "solicitudes", editingId);
                 await updateDoc(solicitudRef, {
-                    nombreProducto: nombreProducto,
+                    nombreProducto,
                     cantidad: parseInt(cantidad),
                     precioEstimado: parseFloat(precioEstimado),
-                    imagenProducto: imagenProducto
+                    direccion,
+                    imagenProducto,
                 });
                 Alert.alert("Éxito", "Solicitud actualizada con éxito");
             } else {
                 await addDoc(collection(db, "solicitudes"), {
-                    nombreProducto: nombreProducto,
+                    nombreProducto,
                     cantidad: parseInt(cantidad),
                     precioEstimado: parseFloat(precioEstimado),
-                    imagenProducto: imagenProducto,
-                    fechaSolicitud: Timestamp.now()
+                    direccion,
+                    imagenProducto,
+                    fechaSolicitud: Timestamp.now(),
                 });
                 Alert.alert("Éxito", "Solicitud guardada con éxito");
             }
@@ -69,6 +74,7 @@ export default function ListaSolicitudes() {
         setNombreProducto(item.nombreProducto || '');
         setCantidad(item.cantidad ? item.cantidad.toString() : '');
         setPrecioEstimado(item.precioEstimado ? item.precioEstimado.toString() : '');
+        setDireccion(item.direccion || '');
         setImagenProducto(item.imagenProducto);
     };
 
@@ -84,8 +90,8 @@ export default function ListaSolicitudes() {
                         await deleteDoc(doc(db, "solicitudes", id));
                         Alert.alert("Eliminado", "Solicitud eliminada con éxito");
                         cargarSolicitudes();
-                    }
-                }
+                    },
+                },
             ]
         );
     };
@@ -94,18 +100,19 @@ export default function ListaSolicitudes() {
         setNombreProducto('');
         setCantidad('');
         setPrecioEstimado('');
+        setDireccion('');
         setImagenProducto(null);
         setEditingId(null);
     };
 
     const seleccionarImagen = async () => {
-        let result = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        const result = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (result.status !== 'granted') {
             Alert.alert("Permiso requerido", "Se necesita permiso para acceder a la galería");
             return;
         }
 
-        let pickerResult = await ImagePicker.launchImageLibraryAsync({
+        const pickerResult = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             quality: 1,
@@ -137,21 +144,43 @@ export default function ListaSolicitudes() {
                 value={cantidad}
                 onChangeText={setCantidad}
             />
+
+    
+            <View style={styles.pickerContainer}>
+                <Picker
+                    selectedValue={precioEstimado}
+                    onValueChange={(itemValue) => setPrecioEstimado(itemValue)}
+                    style={styles.picker}
+                >
+                    <Picker.Item label="Selecciona un tipo de servicio" value="" />
+                    <Picker.Item label="Mandado Normal - 20" value="20" />
+                    <Picker.Item label="Depósito - 30" value="30" />
+                    <Picker.Item label="Viaje a Juigalpa - 400" value="400" />
+                </Picker>
+            </View>
+
             <TextInput
                 style={styles.input}
-                placeholder="Precio estimado"
-                keyboardType="numeric"
-                value={precioEstimado}
-                onChangeText={setPrecioEstimado}
+                placeholder="Dirección"
+                value={direccion}
+                onChangeText={setDireccion}
             />
 
-            <Button title="Seleccionar Imagen" onPress={seleccionarImagen} color="#841584" />
+            <TouchableOpacity onPress={seleccionarImagen} style={styles.imageButton}>
+                <Text style={styles.imageButtonText}>Seleccionar Imagen</Text>
+            </TouchableOpacity>
             {imagenProducto && (
                 <Image source={{ uri: imagenProducto }} style={styles.imagePreview} />
             )}
 
-            <Button title={editingId ? "Actualizar Solicitud" : "Guardar Solicitud"} onPress={handleGuardar} color="#841584" />
-            {editingId && <Button title="Cancelar Edición" onPress={limpiarFormulario} color="#d9534f" />}
+            <TouchableOpacity style={styles.saveButton} onPress={handleGuardar}>
+                <Text style={styles.saveButtonText}>{editingId ? "Actualizar Solicitud" : "Guardar Solicitud"}</Text>
+            </TouchableOpacity>
+            {editingId && (
+                <TouchableOpacity style={styles.cancelButton} onPress={limpiarFormulario}>
+                    <Text style={styles.cancelButtonText}>Cancelar Edición</Text>
+                </TouchableOpacity>
+            )}
 
             <Text style={styles.listHeader}>Solicitudes Guardadas</Text>
             <FlatList
@@ -165,15 +194,16 @@ export default function ListaSolicitudes() {
                         <View style={styles.itemTextContainer}>
                             <Text style={styles.itemText}>{item.nombreProducto || 'Sin nombre'}</Text>
                             <Text style={styles.itemSubtitle}>
-                                Cantidad: {item.cantidad || 'N/A'} | Precio: ${item.precioEstimado || 'N/A'}
+                                Cantidad: {item.cantidad || 'N/A'} | Precio: C${item.precioEstimado || 'N/A'}
                             </Text>
+                            <Text style={styles.itemSubtitle}>Dirección: {item.direccion || 'Sin dirección'}</Text>
                         </View>
                         <View style={styles.buttonContainer}>
-                            <TouchableOpacity style={styles.editButton} onPress={() => handleEditar(item)}>
-                                <Text style={styles.buttonText}>Editar</Text>
+                            <TouchableOpacity onPress={() => handleEditar(item)}>
+                                <AntDesign name="edit" size={24} color="#4CAF50" />
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.deleteButton} onPress={() => handleEliminar(item.id)}>
-                                <Text style={styles.buttonText}>Eliminar</Text>
+                            <TouchableOpacity onPress={() => handleEliminar(item.id)}>
+                                <AntDesign name="delete" size={24} color="#f44336" />
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -186,25 +216,51 @@ export default function ListaSolicitudes() {
 const styles = StyleSheet.create({
     container: {
         padding: 20,
-        backgroundColor: '#1e3264', // Azul oscuro como el cielo nocturno en el fondo
+        backgroundColor: '#1e3264',
         flex: 1,
     },
     header: {
         fontSize: 28,
         fontWeight: 'bold',
         marginBottom: 20,
-        color: '#ffcccb', // Rosa suave inspirado en el lazo rojo de Kiki
+        color: '#ffcccb',
         textAlign: 'center',
-        fontFamily: 'serif', // Familia de fuentes para darle un toque más clásico y cálido
+        fontFamily: 'serif',
     },
     input: {
         height: 45,
-        borderColor: '#ff9e9e', // Rosa claro para el borde de los inputs
+        borderColor: '#ff9e9e',
         borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 10,
         marginBottom: 15,
-        backgroundColor: '#fffaf0', // Blanco cálido que imita un estilo acogedor
+        backgroundColor: '#fffaf0',
+    },
+    pickerContainer: {
+        borderWidth: 1,
+        borderColor: '#ff9e9e',
+        borderRadius: 8,
+        marginBottom: 15,
+        overflow: 'hidden',
+    },
+    picker: {
+        height: 45,
+        borderColor: '#ff9e9e',
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        backgroundColor: '#fffaf0',
+    },
+    imageButton: {
+        backgroundColor: '#ff9e9e',
+        padding: 10,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    imageButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
     },
     imagePreview: {
         width: 100,
@@ -212,13 +268,34 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 10,
         alignSelf: 'center',
-        borderColor: '#ffcccb', // Rosa claro alrededor de la imagen
+        borderColor: '#ffcccb',
         borderWidth: 2,
+    },
+    saveButton: {
+        backgroundColor: '#457b9d',
+        padding: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    saveButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+    },
+    cancelButton: {
+        backgroundColor: '#d9534f',
+        padding: 10,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    cancelButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
     },
     listHeader: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#ffcccb', // Misma tonalidad que el header
+        color: '#ffcccb',
         marginTop: 20,
         textAlign: 'center',
         fontFamily: 'serif',
@@ -227,7 +304,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 15,
-        backgroundColor: '#fffaf0', // Fondo cálido de la tarjeta, evocando un estilo hogareño
+        backgroundColor: '#fffaf0',
         borderRadius: 10,
         marginVertical: 8,
         shadowColor: "#000",
@@ -242,13 +319,13 @@ const styles = StyleSheet.create({
     },
     itemText: {
         fontSize: 18,
-        color: '#3c3c3c', // Color oscuro para el texto, similar a la simplicidad de los colores en el anime
+        color: '#3c3c3c',
         fontWeight: 'bold',
         fontFamily: 'serif',
     },
     itemSubtitle: {
         fontSize: 16,
-        color: '#646464', // Gris para el subtítulo
+        color: '#646464',
         fontFamily: 'serif',
     },
     imageInList: {
@@ -260,22 +337,7 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         flexDirection: 'row',
-    },
-    deleteButton: {
-        backgroundColor: '#e63946', // Rojo oscuro para el botón de eliminar
-        padding: 10,
-        borderRadius: 8,
-        marginLeft: 5,
-    },
-    editButton: {
-        backgroundColor: '#457b9d', // Azul pastel inspirado en los tonos de Ghibli
-        padding: 10,
-        borderRadius: 8,
-    },
-    buttonText: {
-        color: '#fff',
-        fontWeight: 'bold',
-        fontFamily: 'serif',
+        justifyContent: 'flex-end',
     },
     loadingIndicator: {
         flex: 1,

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Dimensions, ActivityIndicator } from 'react-native';
+import { View, Text, Dimensions, ActivityIndicator, StyleSheet, ScrollView } from 'react-native';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { BarChart } from 'react-native-chart-kit';
@@ -35,28 +35,72 @@ export default function GraficoMandados() {
     }, []);
 
     return (
-        <View style={{ flex: 1, padding: 20 }}>
-            <Text style={{ fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 }}>
-                Cantidad de Mandados por Día de la Semana
-            </Text>
-            {loading ? (
-                <ActivityIndicator size="large" color="#841584" />
-            ) : (
-                <BarChart
-                    data={mandadosData}
-                    width={Dimensions.get('window').width - 40}
-                    height={220}
-                    fromZero={true}
-                    chartConfig={{
-                        backgroundGradientFrom: "#ffffff",
-                        backgroundGradientTo: "#ffffff",
-                        decimalPlaces: 0,
-                        color: (opacity = 1) => `rgba(131, 90, 241, ${opacity})`,
-                        labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                    }}
-                    style={{ borderRadius: 10 }}
-                />
-            )}
-        </View>
+        <ScrollView contentContainerStyle={styles.scrollView}>
+            <View style={styles.container}>
+                <Text style={styles.title}>Cantidad de Mandados por Día de la Semana</Text>
+                {loading ? (
+                    <ActivityIndicator size="large" color="#FF6B6B" />
+                ) : (
+                    <BarChart
+                        data={mandadosData}
+                        width={Dimensions.get('window').width - 40}
+                        height={550}
+                        fromZero={true}
+                        showBarTops={true}
+                        chartConfig={{
+                            backgroundGradientFrom: "#ffffff",
+                            backgroundGradientTo: "#ffffff",
+                            decimalPlaces: 0,
+                            color: (opacity = 1) => `rgba(255, 87, 51, ${opacity})`, // Rojo anaranjado
+                            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                            propsForLabels: {
+                                fontSize: 10,
+                                fontWeight: 'bold',
+                                rotation: 60 // Rotar etiquetas para mejor visibilidad
+                            },
+                            style: {
+                                borderRadius: 9
+                            },
+                            propsForBackgroundLines: {
+                                color: "#E0E0E0" // Gris claro para líneas de fondo
+                            }
+                        }}
+                        style={styles.chart}
+                    />
+                )}
+            </View>
+        </ScrollView>
     );
 }
+
+const styles = StyleSheet.create({
+    scrollView: {
+        flexGrow: 1,
+        backgroundColor: '#FFFFFF', // Fondo blanco
+        paddingBottom: 10, // Espacio al final para permitir scroll completo
+    },
+    container: {
+        flex: 1,
+        padding: 9,
+        backgroundColor: '#FFFFFF', // Fondo blanco para el contenedor
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#FF6B6B',
+        textAlign: 'center',
+        marginBottom: 20,
+        fontFamily: 'serif',
+    },
+    chart: {
+        borderRadius: 10,
+        padding: 12,
+        marginVertical: 20,
+        backgroundColor: '#FFFFFF', // Fondo blanco en el gráfico
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 6,
+    },
+});

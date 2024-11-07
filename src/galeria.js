@@ -38,7 +38,7 @@ const GaleriaProductos = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Galería de Productos</Text>
+            <Text style={styles.title}>Mandaditos</Text>
             <FlatList
                 data={productos}
                 keyExtractor={(item) => item.id}
@@ -48,7 +48,8 @@ const GaleriaProductos = () => {
                         <Image source={{ uri: item.imagenProducto }} style={styles.image} />
                         <Text style={styles.name}>{item.nombreProducto}</Text>
                         <Text style={styles.info}>Cantidad: {item.cantidad}</Text>
-                        <Text style={styles.info}>Precio Estimado: ${item.precioEstimado}</Text>
+                        <Text style={styles.info}>Precio Estimado: C${item.precioEstimado}</Text>
+                        <Text style={styles.info}>Dirección: {item.direccion}</Text>
                     </TouchableOpacity>
                 )}
             />
@@ -68,7 +69,8 @@ const GaleriaProductos = () => {
                         <Image source={{ uri: selectedProducto.imagenProducto }} style={styles.fullImage} />
                         <Text style={styles.modalName}>{selectedProducto.nombreProducto}</Text>
                         <Text style={styles.modalInfo}>Cantidad: {selectedProducto.cantidad}</Text>
-                        <Text style={styles.modalInfo}>Precio Estimado: ${selectedProducto.precioEstimado}</Text>
+                        <Text style={styles.modalInfo}>Precio Estimado: C${selectedProducto.precioEstimado}</Text>
+                        <Text style={styles.modalInfo}>Dirección: {selectedProducto.direccion}</Text>
                     </View>
                 </Modal>
             )}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
 import { db } from '../firebaseConfig';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
@@ -8,6 +9,7 @@ export default function FormularioSolicitud() {
     const [nombreProducto, setNombreProducto] = useState('');
     const [cantidad, setCantidad] = useState('');
     const [precioEstimado, setPrecioEstimado] = useState('');
+    const [direccion, setDireccion] = useState(''); // Estado para la dirección
     const [imagenProducto, setImagenProducto] = useState(null);
 
     const seleccionarImagen = async () => {
@@ -33,7 +35,7 @@ export default function FormularioSolicitud() {
     };
 
     const handleGuardar = async () => {
-        if (!nombreProducto || !cantidad || !precioEstimado || !imagenProducto) {
+        if (!nombreProducto || !cantidad || !precioEstimado || !direccion || !imagenProducto) {
             Alert.alert("Error", "Por favor, complete todos los campos.");
             return;
         }
@@ -43,6 +45,7 @@ export default function FormularioSolicitud() {
                 nombreProducto,
                 cantidad: parseInt(cantidad),
                 precioEstimado: parseFloat(precioEstimado),
+                direccion, // Incluye la dirección en Firebase
                 imagenProducto, // Guardar la URI de la imagen
                 fechaSolicitud: Timestamp.now(),
             });
@@ -52,6 +55,7 @@ export default function FormularioSolicitud() {
             setNombreProducto('');
             setCantidad('');
             setPrecioEstimado('');
+            setDireccion(''); // Limpiar el campo de dirección
             setImagenProducto(null);
         } catch (error) {
             console.error("Error al guardar solicitud: ", error);
@@ -87,13 +91,26 @@ export default function FormularioSolicitud() {
                 keyboardType="numeric" 
             />
 
-            <Text style={styles.label}>Precio Estimado:</Text>
+            <Text style={styles.label}>Tipo de Servicio:</Text>
+            <View style={styles.pickerContainer}>
+                <Picker
+                    selectedValue={precioEstimado}
+                    onValueChange={(itemValue) => setPrecioEstimado(itemValue)}
+                    style={styles.picker}
+                >
+                    <Picker.Item label="Selecciona un tipo de servicio" value="" />
+                    <Picker.Item label="Mandado Normal - 20" value="20" />
+                    <Picker.Item label="Depósito - 30" value="30" />
+                    <Picker.Item label="Viaje a Juigalpa - 400" value="400" />
+                </Picker>
+            </View>
+
+            <Text style={styles.label}>Dirección de Entrega:</Text>
             <TextInput 
                 style={styles.input}
-                value={precioEstimado} 
-                onChangeText={setPrecioEstimado} 
-                placeholder="Precio estimado" 
-                keyboardType="numeric" 
+                value={direccion} 
+                onChangeText={setDireccion} 
+                placeholder="Ingresa la dirección de entrega" 
             />
 
             <View style={styles.buttonContainer}>
@@ -157,6 +174,18 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         marginBottom: 15,
         backgroundColor: '#fffaf0', // Fondo cálido
+    },
+    pickerContainer: {
+        borderWidth: 1,
+        borderColor: '#ff9e9e', // Rosa claro alrededor del menú desplegable
+        borderRadius: 8,
+        marginBottom: 15,
+        overflow: 'hidden',
+    },
+    picker: {
+        height: 45,
+        color: '#333333',
+        backgroundColor: '#fffaf0', // Fondo cálido para el picker
     },
     buttonContainer: {
         marginTop: 20,
