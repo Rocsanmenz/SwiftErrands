@@ -29,7 +29,7 @@ function MyTabs() {
         tabBarActiveTintColor: '#ff4d6d',     // Rosa fuerte para el ícono activo
         tabBarInactiveTintColor: '#b56a6a',   // Rosa más suave para íconos inactivos
         tabBarStyle: {
-          backgroundColor: '#ffcccb',         // Fondo de la barra de pestañas en rosa suave
+          backgroundColor: '#ffffff',         // Fondo de la barra de pestañas en rosa suave
           borderTopWidth: 0,                  // Sin borde superior para un estilo limpio
           height: 60,
           paddingBottom: 5,
@@ -39,7 +39,7 @@ function MyTabs() {
           fontFamily: 'serif',               // Tipografía serif para un toque clásico
         },
         headerStyle: {
-          backgroundColor: '#ffcccb',         // Fondo del encabezado en rosa suave
+          backgroundColor: '#ffffff',         // Fondo del encabezado en rosa suave
         },
         headerTitleStyle: {
           color: '#1e3264',                  // Color del texto del encabezado en azul oscuro

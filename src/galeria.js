@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet, Modal } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { db } from '../firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
 
@@ -17,6 +18,7 @@ const GaleriaProductos = () => {
                 listaProductos.push({ id: doc.id, ...doc.data() });
             });
             setProductos(listaProductos);
+            console.log("Datos cargados desde Firestore:", listaProductos);
         } catch (error) {
             console.error("Error al cargar los productos:", error);
         }
@@ -79,80 +81,94 @@ const GaleriaProductos = () => {
 };
 
 export default GaleriaProductos;
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#1e3264', // Azul oscuro de fondo
-        marginTop: 20,
+        paddingTop: 20,
+        paddingHorizontal: 10,
     },
     title: {
-        fontSize: 24,
+        fontSize: 26,
         fontWeight: 'bold',
         color: '#ffcccb', // Rosa inspirado en Kiki's Delivery Service
-        marginBottom: 15,
+        marginBottom: 20,
         textAlign: 'center',
         fontFamily: 'serif',
     },
     card: {
         flex: 1,
         margin: 10,
-        backgroundColor: '#F8F8F8',
-        borderRadius: 8,
-        padding: 10,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 10,
+        paddingVertical: 15,
+        paddingHorizontal: 10,
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#FF0000', // Color rojo predominante para Mandaditos
+        borderWidth: 1.5,
+        borderColor: '#FF6B6B', // Color rojo predominante para Mandaditos
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 5,
     },
     image: {
-        width: 100,
-        height: 100,
+        width: 90,
+        height: 90,
         borderRadius: 8,
         marginBottom: 10,
     },
     name: {
-        fontSize: 16,
+        fontSize: 18,
         fontWeight: 'bold',
         color: '#333333',
+        textAlign: 'center',
+        marginBottom: 6,
     },
     info: {
         fontSize: 14,
         color: '#666666',
+        textAlign: 'center',
+        marginVertical: 2, // Espacio entre líneas de información
     },
     modalContainer: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
     },
     closeButton: {
         position: 'absolute',
-        top: 50,
+        top: 40,
         right: 20,
         padding: 10,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 5,
+        backgroundColor: '#FF6B6B',
+        borderRadius: 8,
     },
     closeButtonText: {
-        color: '#FF0000',
+        color: '#FFFFFF',
         fontWeight: 'bold',
+        fontSize: 16,
     },
     fullImage: {
         width: '80%',
         height: '50%',
         resizeMode: 'contain',
         borderRadius: 10,
+        marginBottom: 15,
     },
     modalName: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#ffcccb', // Rosa suave
-        marginTop: 20,
+        color: '#ffcccb',
+        marginBottom: 10,
+        textAlign: 'center',
     },
     modalInfo: {
         fontSize: 18,
         color: '#FFFFFF',
         marginTop: 5,
+        textAlign: 'center',
     },
 });

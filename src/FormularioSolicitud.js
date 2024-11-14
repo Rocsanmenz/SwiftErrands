@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
 import { db } from '../firebaseConfig';
@@ -9,7 +9,7 @@ export default function FormularioSolicitud() {
     const [nombreProducto, setNombreProducto] = useState('');
     const [cantidad, setCantidad] = useState('');
     const [precioEstimado, setPrecioEstimado] = useState('');
-    const [direccion, setDireccion] = useState(''); // Estado para la dirección
+    const [direccion, setDireccion] = useState('');
     const [imagenProducto, setImagenProducto] = useState(null);
 
     const seleccionarImagen = async () => {
@@ -27,7 +27,7 @@ export default function FormularioSolicitud() {
         });
 
         if (!pickerResult.canceled && pickerResult.assets && pickerResult.assets.length > 0) {
-            setImagenProducto(pickerResult.assets[0].uri); // Almacena la URI de la imagen seleccionada
+            setImagenProducto(pickerResult.assets[0].uri);
             console.log("Imagen seleccionada URI:", pickerResult.assets[0].uri);
         } else {
             Alert.alert("Error", "No se seleccionó ninguna imagen.");
@@ -45,17 +45,16 @@ export default function FormularioSolicitud() {
                 nombreProducto,
                 cantidad: parseInt(cantidad),
                 precioEstimado: parseFloat(precioEstimado),
-                direccion, // Incluye la dirección en Firebase
-                imagenProducto, // Guardar la URI de la imagen
+                direccion,
+                imagenProducto,
                 fechaSolicitud: Timestamp.now(),
             });
             Alert.alert("Éxito", "Solicitud guardada con éxito");
 
-            // Limpiar los campos después de guardar
             setNombreProducto('');
             setCantidad('');
             setPrecioEstimado('');
-            setDireccion(''); // Limpiar el campo de dirección
+            setDireccion('');
             setImagenProducto(null);
         } catch (error) {
             console.error("Error al guardar solicitud: ", error);
@@ -70,8 +69,7 @@ export default function FormularioSolicitud() {
             <TouchableOpacity onPress={seleccionarImagen} style={styles.imageContainer}>
                 <Text style={styles.imageText}>Seleccionar Imagen</Text>
             </TouchableOpacity>
-            
-            {/* Vista previa de la imagen seleccionada */}
+
             {imagenProducto && <Image source={{ uri: imagenProducto }} style={styles.imagePreview} />}
 
             <Text style={styles.label}>Nombre del Producto:</Text>
@@ -113,9 +111,10 @@ export default function FormularioSolicitud() {
                 placeholder="Ingresa la dirección de entrega" 
             />
 
-            <View style={styles.buttonContainer}>
-                <Button title="Guardar Solicitud" onPress={handleGuardar} color="#457b9d" />
-            </View>
+            {/* Botón personalizado sin borde ni fondo visible */}
+            <TouchableOpacity style={styles.customButton} onPress={handleGuardar}>
+                <Text style={styles.customButtonText}>Guardar Solicitud</Text>
+            </TouchableOpacity>
         </ScrollView>
     );
 }
@@ -123,7 +122,7 @@ export default function FormularioSolicitud() {
 const styles = StyleSheet.create({
     container: {
         padding: 20,
-        backgroundColor: '#1e3264', // Azul oscuro de fondo para una apariencia nocturna
+        backgroundColor: '#1e3264', // Azul oscuro de fondo
         flexGrow: 1,
     },
     title: {
@@ -143,7 +142,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 10,
-        borderColor: '#ff9e9e', // Rosa claro alrededor de la imagen
+        borderColor: '#ff9e9e',
         borderWidth: 1,
     },
     imageText: {
@@ -177,7 +176,7 @@ const styles = StyleSheet.create({
     },
     pickerContainer: {
         borderWidth: 1,
-        borderColor: '#ff9e9e', // Rosa claro alrededor del menú desplegable
+        borderColor: '#ff9e9e',
         borderRadius: 8,
         marginBottom: 15,
         overflow: 'hidden',
@@ -187,7 +186,18 @@ const styles = StyleSheet.create({
         color: '#333333',
         backgroundColor: '#fffaf0', // Fondo cálido para el picker
     },
-    buttonContainer: {
-        marginTop: 20,
+    customButton: {
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+        alignItems: 'center',
+        backgroundColor: "#457b9d", // Sin fondo visible
+         color: '#fff',
+        fontWeight: 'bold'
+    },
+    customButtonText: {
+        color: '#ffff', // Color del texto para que resalte sobre el fondo
+        fontSize: 18,
+        fontWeight: 'bold',
     },
 });
