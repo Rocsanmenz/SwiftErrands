@@ -1,31 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet, Modal } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { db } from '../firebaseConfig';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
 
 const GaleriaProductos = () => {
     const [productos, setProductos] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedProducto, setSelectedProducto] = useState(null);
 
-    // Función para cargar los productos desde Firestore
-    const cargarProductos = async () => {
-        try {
-            const querySnapshot = await getDocs(collection(db, 'solicitudes'));
-            const listaProductos = [];
-            querySnapshot.forEach((doc) => {
-                listaProductos.push({ id: doc.id, ...doc.data() });
-            });
-            setProductos(listaProductos);
-            console.log("Datos cargados desde Firestore:", listaProductos);
-        } catch (error) {
-            console.error("Error al cargar los productos:", error);
-        }
-    };
-
+    // Escuchar los cambios en tiempo real
     useEffect(() => {
-        cargarProductos();
+        const unsubscribe = onSnapshot(collection(db, 'solicitudes'), (snapshot) => {
+            const listaProductos = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+            setProductos(listaProductos);
+            console.log("Datos actualizados desde Firestore:", listaProductos);
+        });
+
+        // Desuscribirse para evitar fugas de memoria
+        return () => unsubscribe();
     }, []);
 
     const openModal = (producto) => {
@@ -44,10 +39,14 @@ const GaleriaProductos = () => {
             <FlatList
                 data={productos}
                 keyExtractor={(item) => item.id}
-                numColumns={2} // Número de columnas para ver las tarjetas en cuadrícula
+                numColumns={2}
                 renderItem={({ item }) => (
                     <TouchableOpacity onPress={() => openModal(item)} style={styles.card}>
-                        <Image source={{ uri: item.imagenProducto }} style={styles.image} />
+                        {item.imagenProducto ? (
+                            <Image source={{ uri: item.imagenProducto }} style={styles.image} />
+                        ) : (
+                            <Text style={styles.noImageText}>Sin imagen</Text>
+                        )}
                         <Text style={styles.name}>{item.nombreProducto}</Text>
                         <Text style={styles.info}>Cantidad: {item.cantidad}</Text>
                         <Text style={styles.info}>Precio Estimado: C${item.precioEstimado}</Text>
@@ -56,7 +55,6 @@ const GaleriaProductos = () => {
                 )}
             />
 
-            {/* Modal para ver los detalles del producto en grande */}
             {selectedProducto && (
                 <Modal
                     visible={modalVisible}
@@ -68,10 +66,19 @@ const GaleriaProductos = () => {
                         <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
                             <Text style={styles.closeButtonText}>Cerrar</Text>
                         </TouchableOpacity>
-                        <Image source={{ uri: selectedProducto.imagenProducto }} style={styles.fullImage} />
+                        {selectedProducto.imagenProducto ? (
+                            <Image
+                                source={{ uri: selectedProducto.imagenProducto }}
+                                style={styles.fullImage}
+                            />
+                        ) : (
+                            <Text style={styles.modalNoImageText}>Sin imagen disponible</Text>
+                        )}
                         <Text style={styles.modalName}>{selectedProducto.nombreProducto}</Text>
                         <Text style={styles.modalInfo}>Cantidad: {selectedProducto.cantidad}</Text>
-                        <Text style={styles.modalInfo}>Precio Estimado: C${selectedProducto.precioEstimado}</Text>
+                        <Text style={styles.modalInfo}>
+                            Precio Estimado: C${selectedProducto.precioEstimado}
+                        </Text>
                         <Text style={styles.modalInfo}>Dirección: {selectedProducto.direccion}</Text>
                     </View>
                 </Modal>
@@ -81,17 +88,18 @@ const GaleriaProductos = () => {
 };
 
 export default GaleriaProductos;
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#1e3264', // Azul oscuro de fondo
+        backgroundColor: '#1e3264',
         paddingTop: 20,
         paddingHorizontal: 10,
     },
     title: {
         fontSize: 26,
         fontWeight: 'bold',
-        color: '#ffcccb', // Rosa inspirado en Kiki's Delivery Service
+        color: '#ffcccb',
         marginBottom: 20,
         textAlign: 'center',
         fontFamily: 'serif',
@@ -105,7 +113,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         alignItems: 'center',
         borderWidth: 1.5,
-        borderColor: '#FF6B6B', // Color rojo predominante para Mandaditos
+        borderColor: '#FF6B6B',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
@@ -118,6 +126,12 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginBottom: 10,
     },
+    noImageText: {
+        fontSize: 14,
+        color: '#666666',
+        textAlign: 'center',
+        marginVertical: 10,
+    },
     name: {
         fontSize: 18,
         fontWeight: 'bold',
@@ -129,7 +143,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#666666',
         textAlign: 'center',
-        marginVertical: 2, // Espacio entre líneas de información
+        marginVertical: 2,
     },
     modalContainer: {
         flex: 1,
@@ -169,6 +183,12 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: '#FFFFFF',
         marginTop: 5,
+        textAlign: 'center',
+    },
+    modalNoImageText: {
+        fontSize: 18,
+        color: '#FFFFFF',
+        marginBottom: 10,
         textAlign: 'center',
     },
 });

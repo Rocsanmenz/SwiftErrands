@@ -11,14 +11,13 @@ import AcercaDeMandaditos from "./src/Bienvenida";
 
 const Tab = createBottomTabNavigator();
 
-// Definimos un tema personalizado con colores rosas para el fondo y elementos activos.
+
 const MyTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: '#ffcccb', // Fondo rosa suave inspirado en el lazo de Kiki
-    primary: '#1e3264',    // Azul oscuro para resaltar elementos
-    
+    background: '#ffcccb', 
+    primary: '#1e3264',    
   },
 };
 
@@ -26,23 +25,23 @@ function MyTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: '#ff4d6d',     // Rosa fuerte para el ícono activo
-        tabBarInactiveTintColor: '#b56a6a',   // Rosa más suave para íconos inactivos
+        tabBarActiveTintColor: '#ff4d6d',     
+        tabBarInactiveTintColor: '#b56a6a',  
         tabBarStyle: {
-          backgroundColor: '#ffffff',         // Fondo de la barra de pestañas en rosa suave
-          borderTopWidth: 0,                  // Sin borde superior para un estilo limpio
+          backgroundColor: '#ffffff',         
+          borderTopWidth: 0,                
           height: 60,
           paddingBottom: 5,
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontFamily: 'serif',               // Tipografía serif para un toque clásico
+          fontFamily: 'serif',              
         },
         headerStyle: {
-          backgroundColor: '#ffffff',         // Fondo del encabezado en rosa suave
+          backgroundColor: '#ffffff',         
         },
         headerTitleStyle: {
-          color: '#1e3264',                  // Color del texto del encabezado en azul oscuro
+          color: '#1e3264',                 
           fontFamily: 'serif',
           fontSize: 20,
         },

@@ -5,7 +5,7 @@ const AcercaDeMandaditos = () => {
     return (
         <View style={styles.container}>
             <Image 
-                source={require('../assets/kiki3.jpg')} // Ruta correcta de la imagen en la carpeta assets
+                source={require('../assets/kiki3.jpg')} 
                 style={styles.image}
             />
             <Text style={styles.title}>¿Quiénes Somos?</Text>

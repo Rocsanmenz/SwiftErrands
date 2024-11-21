@@ -3,7 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, 
 import * as ImagePicker from 'expo-image-picker';
 import { Picker } from '@react-native-picker/picker';
 import { db } from '../firebaseConfig';
-import { collection, getDocs, doc, addDoc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
+import { collection, onSnapshot, doc, addDoc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 import AntDesign from '@expo/vector-icons/AntDesign';
 
 export default function ListaSolicitudes() {
@@ -17,21 +17,14 @@ export default function ListaSolicitudes() {
     const [editingId, setEditingId] = useState(null);
 
     useEffect(() => {
-        cargarSolicitudes();
-    }, []);
-
-    const cargarSolicitudes = async () => {
-        setLoading(true);
-        try {
-            const querySnapshot = await getDocs(collection(db, "solicitudes"));
-            const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            console.log("Datos cargados desde Firestore:", data);
+        const unsubscribe = onSnapshot(collection(db, "solicitudes"), (snapshot) => {
+            const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
             setSolicitudes(data);
-        } catch (error) {
-            console.error("Error al cargar las solicitudes: ", error);
-        }
-        setLoading(false);
-    };
+            setLoading(false);
+        });
+
+        return () => unsubscribe(); // Desuscribirse al desmontar el componente
+    }, []);
 
     const handleGuardar = async () => {
         if (!nombreProducto || !cantidad || !precioEstimado || !direccion) {
@@ -42,13 +35,14 @@ export default function ListaSolicitudes() {
         try {
             if (editingId) {
                 const solicitudRef = doc(db, "solicitudes", editingId);
-                await updateDoc(solicitudRef, {
+                const updatedData = {
                     nombreProducto,
                     cantidad: parseInt(cantidad),
                     precioEstimado: parseFloat(precioEstimado),
                     direccion,
-                    imagenProducto,
-                });
+                    imagenProducto: imagenProducto || "",
+                };
+                await updateDoc(solicitudRef, updatedData);
                 Alert.alert("Éxito", "Solicitud actualizada con éxito");
             } else {
                 await addDoc(collection(db, "solicitudes"), {
@@ -56,13 +50,12 @@ export default function ListaSolicitudes() {
                     cantidad: parseInt(cantidad),
                     precioEstimado: parseFloat(precioEstimado),
                     direccion,
-                    imagenProducto,
+                    imagenProducto: imagenProducto || "",
                     fechaSolicitud: Timestamp.now(),
                 });
                 Alert.alert("Éxito", "Solicitud guardada con éxito");
             }
             limpiarFormulario();
-            cargarSolicitudes();
         } catch (error) {
             console.error("Error al guardar solicitud: ", error);
             Alert.alert("Error", "Error al guardar solicitud");
@@ -75,7 +68,7 @@ export default function ListaSolicitudes() {
         setCantidad(item.cantidad ? item.cantidad.toString() : '');
         setPrecioEstimado(item.precioEstimado ? item.precioEstimado.toString() : '');
         setDireccion(item.direccion || '');
-        setImagenProducto(item.imagenProducto);
+        setImagenProducto(item.imagenProducto || null);
     };
 
     const handleEliminar = async (id) => {
@@ -89,7 +82,6 @@ export default function ListaSolicitudes() {
                     onPress: async () => {
                         await deleteDoc(doc(db, "solicitudes", id));
                         Alert.alert("Eliminado", "Solicitud eliminada con éxito");
-                        cargarSolicitudes();
                     },
                 },
             ]
@@ -106,20 +98,14 @@ export default function ListaSolicitudes() {
     };
 
     const seleccionarImagen = async () => {
-        const result = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (result.status !== 'granted') {
-            Alert.alert("Permiso requerido", "Se necesita permiso para acceder a la galería");
-            return;
-        }
-
-        const pickerResult = await ImagePicker.launchImageLibraryAsync({
+        const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             quality: 1,
         });
 
-        if (!pickerResult.canceled) {
-            setImagenProducto(pickerResult.uri);
+        if (!result.canceled) {
+            setImagenProducto(result.assets[0].uri);
         }
     };
 
@@ -145,7 +131,6 @@ export default function ListaSolicitudes() {
                 onChangeText={setCantidad}
             />
 
-    
             <View style={styles.pickerContainer}>
                 <Picker
                     selectedValue={precioEstimado}
@@ -169,8 +154,10 @@ export default function ListaSolicitudes() {
             <TouchableOpacity onPress={seleccionarImagen} style={styles.imageButton}>
                 <Text style={styles.imageButtonText}>Seleccionar Imagen</Text>
             </TouchableOpacity>
-            {imagenProducto && (
+            {imagenProducto ? (
                 <Image source={{ uri: imagenProducto }} style={styles.imagePreview} />
+            ) : (
+                <Text style={styles.noImageText}>Sin imagen seleccionada</Text>
             )}
 
             <TouchableOpacity style={styles.saveButton} onPress={handleGuardar}>
@@ -188,8 +175,10 @@ export default function ListaSolicitudes() {
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                     <View style={styles.itemContainer}>
-                        {item.imagenProducto && (
+                        {item.imagenProducto ? (
                             <Image source={{ uri: item.imagenProducto }} style={styles.imageInList} />
+                        ) : (
+                            <Text style={styles.noImageText}>Sin imagen</Text>
                         )}
                         <View style={styles.itemTextContainer}>
                             <Text style={styles.itemText}>{item.nombreProducto || 'Sin nombre'}</Text>
@@ -245,11 +234,6 @@ const styles = StyleSheet.create({
     },
     picker: {
         height: 45,
-        borderColor: '#ff9e9e',
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        backgroundColor: '#fffaf0',
     },
     imageButton: {
         backgroundColor: '#ff9e9e',
@@ -268,8 +252,12 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderRadius: 10,
         alignSelf: 'center',
-        borderColor: '#ffcccb',
-        borderWidth: 2,
+    },
+    noImageText: {
+        fontSize: 14,
+        color: '#999',
+        fontStyle: 'italic',
+        alignSelf: 'center',
     },
     saveButton: {
         backgroundColor: '#457b9d',
@@ -307,7 +295,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fffaf0',
         borderRadius: 10,
         marginVertical: 8,
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 5,

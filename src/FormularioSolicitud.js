@@ -111,7 +111,7 @@ export default function FormularioSolicitud() {
                 placeholder="Ingresa la dirección de entrega" 
             />
 
-            {/* Botón personalizado sin borde ni fondo visible */}
+           
             <TouchableOpacity style={styles.customButton} onPress={handleGuardar}>
                 <Text style={styles.customButtonText}>Guardar Solicitud</Text>
             </TouchableOpacity>
@@ -122,13 +122,13 @@ export default function FormularioSolicitud() {
 const styles = StyleSheet.create({
     container: {
         padding: 20,
-        backgroundColor: '#1e3264', // Azul oscuro de fondo
+        backgroundColor: '#1e3264', 
         flexGrow: 1,
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#ffcccb', // Rosa suave inspirado en el lazo de Kiki
+        color: '#ffcccb', 
         marginBottom: 20,
         textAlign: 'center',
         fontFamily: 'serif',
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     imageText: {
-        color: '#1e3264', // Azul oscuro para el texto del botón de imagen
+        color: '#1e3264', 
         fontFamily: 'serif',
         fontWeight: 'bold',
     },
@@ -156,23 +156,23 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         borderRadius: 10,
         borderWidth: 2,
-        borderColor: '#ffcccb', // Borde rosa suave
+        borderColor: '#ffcccb', 
     },
     label: {
         fontSize: 16,
         fontWeight: 'bold',
         marginBottom: 5,
-        color: '#ffcccb', // Rosa suave para las etiquetas
+        color: '#ffcccb', 
         fontFamily: 'serif',
     },
     input: {
         height: 45,
-        borderColor: '#ff9e9e', // Rosa claro para el borde de los inputs
+        borderColor: '#ff9e9e', 
         borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 10,
         marginBottom: 15,
-        backgroundColor: '#fffaf0', // Fondo cálido
+        backgroundColor: '#fffaf0', 
     },
     pickerContainer: {
         borderWidth: 1,
@@ -184,19 +184,19 @@ const styles = StyleSheet.create({
     picker: {
         height: 45,
         color: '#333333',
-        backgroundColor: '#fffaf0', // Fondo cálido para el picker
+        backgroundColor: '#fffaf0', 
     },
     customButton: {
         paddingVertical: 12,
         paddingHorizontal: 20,
         borderRadius: 8,
         alignItems: 'center',
-        backgroundColor: "#457b9d", // Sin fondo visible
+        backgroundColor: "#457b9d", 
          color: '#fff',
         fontWeight: 'bold'
     },
     customButtonText: {
-        color: '#ffff', // Color del texto para que resalte sobre el fondo
+        color: '#ffff', 
         fontSize: 18,
         fontWeight: 'bold',
     },

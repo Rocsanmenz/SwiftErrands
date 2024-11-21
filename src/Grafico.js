@@ -12,7 +12,7 @@ import * as Sharing from 'expo-sharing';
 export default function GraficoMandados() {
     const [mandadosData, setMandadosData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [filtro, setFiltro] = useState("todos"); // Estado para la opción de filtro seleccionada
+    const [filtro, setFiltro] = useState("todos"); 
     const chartRef = useRef(null);
 
     useEffect(() => {
@@ -27,7 +27,7 @@ export default function GraficoMandados() {
                     dias[diaSemana.charAt(0).toUpperCase() + diaSemana.slice(1)] += 1;
                 });
 
-                // Aplicar el filtro seleccionado
+                
                 let diasFiltrados;
                 if (filtro === "masMandados") {
                     const maxMandados = Math.max(...Object.values(dias));
@@ -57,7 +57,7 @@ export default function GraficoMandados() {
         };
 
         obtenerDatos();
-    }, [filtro]); // El efecto se ejecuta nuevamente cuando cambia el filtro
+    }, [filtro]); 
 
     const generarPDF = async () => {
         try {
@@ -101,7 +101,6 @@ export default function GraficoMandados() {
             <View style={styles.container}>
                 <Text style={styles.title}>Cantidad de Mandados por Día de la Semana</Text>
 
-                {/* Menú desplegable para seleccionar el filtro */}
                 <Picker
                     selectedValue={filtro}
                     style={styles.picker}
